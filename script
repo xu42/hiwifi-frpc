@@ -1,0 +1,65 @@
+#!/bin/sh
+
+install()
+{
+    cp -r etc /
+    cp -r usr /
+    cat MORE >> /etc/xfrpc/xfrpc.ini
+    chmod +x /usr/sbin/xfrpc
+    chmod +x /etc/init.d/xfrpc
+    return 0
+}
+
+
+uninstall()
+{
+    stop
+    rm -rf /etc/init.d/xfrpc
+    rm -rf /usr/sbin/xfrpc
+    return 0
+}
+
+
+start()
+{
+    /etc/init.d/xfrpc start
+    /etc/init.d/xfrpc enable
+    return 0
+}
+
+
+stop()
+{
+    /etc/init.d/xfrpc stop
+    /etc/init.d/xfrpc disable
+    return 0
+}
+
+
+status()
+{
+    status=$( echo $(pgrep 'xfrpc') | awk  ""'{print NF}')
+    if [ $status = 0 ]; then
+        status="stopped"
+    else
+        status="running"
+    fi
+
+    echo '{ "status" : "'$status'", "msg" : "'$status'" }'
+    return 0
+}
+
+
+reconfigure()
+{
+    stop
+    rm -f /etc/xfrpc/xfrpc.ini
+    cat MORE >> /etc/xfrpc/xfrpc.ini
+    return 0
+}
+
+
+restart() {
+    stop
+    start
+}
